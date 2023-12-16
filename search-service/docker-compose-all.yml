@@ -1,0 +1,92 @@
+version: "3.7"
+services:
+  zipkin:
+    container_name: zipkin
+    image: openzipkin/zipkin
+    extra_hosts: [ 'host.docker.internal:host-gateway' ]
+    ports:
+      - "9411:9411"
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.8.0
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - /usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+  discovery-service:
+    image: job-hunt/discovery-service:1.1-SNAPSHOT
+    ports:
+      - "8061:8061"
+    healthcheck:
+      test: curl --fail http://localhost:8061/eureka/v2/apps || exit 1
+      interval: 4s
+      timeout: 2s
+      retries: 3
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  search-service:
+    image: job-hunt/search-service:1.1-SNAPSHOT
+    ports:
+      - "8080"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    links:
+      - discovery-service
+      - recommendation-engine
+      - zipkin
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  recommendation-service:
+    image: job-hunt/recommendation-service:1.1-SNAPSHOT
+    ports:
+      - "8080"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    links:
+      - discovery-service
+      - recommendation-engine
+      - zipkin
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  recommendation-engine:
+    image: job-hunt/recommendation-engine:1.1-SNAPSHOT
+    ports:
+      - "8080"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    links:
+      - discovery-service
+      - zipkin
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+  gateway-service:
+    image: job-hunt/gateway-service:1.1-SNAPSHOT
+    ports:
+      - "8060:8060"
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    links:
+      - discovery-service
+      - search-service
+      - recommendation-engine
+      - recommendation-service
+      - zipkin
