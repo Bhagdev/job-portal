@@ -8,11 +8,11 @@
 
 ## Architecture
 
-![image]()
+![image](https://github.com/Bhagdev/job-portal/blob/main/job_portal-HLD.drawio.png)
 
  Microservices-based system consists of the following modules:
 - **gateway-service** - a module that Spring Cloud Netflix Zuul for running Spring Boot application that acts as a proxy/gateway.
-- **discovery-service** - a module that depending on the example it uses Spring Cloud Netflix Eureka or Spring Cloud Netlix Alibaba Nacos as an embedded discovery server.
+- **discovery-service** - a module that uses Spring Cloud Netflix Eureka as an embedded discovery server.
 - **search-service** - microservice to perform searches on elastic search for jobs data.
 - **recommendation-service** - microservice to recommend jobs for user based on profile and search history
 
