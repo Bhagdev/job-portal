@@ -29,9 +29,6 @@ import java.util.stream.Collectors;
 public class JobSearchService implements SearchService {
 
     @Autowired
-    final JobRepository repository;
-
-    @Autowired
     final ElasticsearchOperations esTemplate;
 
     @Override
@@ -48,7 +45,7 @@ public class JobSearchService implements SearchService {
                 .pageNum(page).result(jobs).build();
     }
 
-    public SearchHits<Job> searchHits(String keyword, Filter filters,Pageable pageable) {
+    private SearchHits<Job> searchHits(String keyword, Filter filters,Pageable pageable) {
         Query searchQuery = NativeQuery.builder()
                 .withQuery(QueryBuilder.buildSearchQuery(keyword, filters))
                 .withPageable(pageable)

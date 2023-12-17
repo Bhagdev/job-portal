@@ -10,7 +10,7 @@ public class UserRepository {
     public User getUserById(String userId) {
         return User.builder().userId(userId)
                 .userName("TestUser")
-                .tags(Arrays.asList("TeamWork", "Supervisor"))
+                .tags(Arrays.asList("sql", "java"))
                 .build();
     }
 }

@@ -19,7 +19,6 @@ public class User implements Serializable {
     private List<String> tags;
 
     public String getCurrentLocation() {
-       //experiences.stream().filter(UserExperience::isCurrent).findFirst().get().getLocation().;
         return "Mumbai";
     }
 }
